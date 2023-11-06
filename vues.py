@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QMainWindow, QFormLayout, QLineEdit, QPushButton, QWidget, \
-    QListWidget, QGridLayout
+    QListWidget, QGridLayout, QComboBox
 from models import Amorces, Couple
 
 NAME_TABLE_AMORCES = "amorces"
@@ -22,10 +22,9 @@ class FormChoiceTable(QWidget):
 
     def widgets(self):
         # Widget avec un champs pour sélectionner la table
-        self.table_choice = QListWidget()
-        self.table_choice.insertItem(0, NAME_TABLE_AMORCES)
-        self.table_choice.insertItem(1, NAME_TABLE_COUPLE)
-        self.table_choice.setCurrentRow(0)
+        self.table_choice = QComboBox()
+        self.table_choice.addItem(NAME_TABLE_AMORCES)
+        self.table_choice.addItem(NAME_TABLE_COUPLE)
         self.button_choice = QPushButton("Choisir")
 
     def layout(self):
@@ -39,10 +38,10 @@ class FormChoiceTable(QWidget):
         self.button_choice.clicked.connect(self.choice_table)
 
     def choice_table(self):
-        if self.table_choice.currentItem().text() == NAME_TABLE_AMORCES:
+        if self.table_choice.currentText() == NAME_TABLE_AMORCES:
             self.amorce_widget = AmorceWidget()
             self.amorce_widget.show()
-        elif self.table_choice.currentItem().text() == NAME_TABLE_COUPLE:
+        elif self.table_choice.currentText() == NAME_TABLE_COUPLE:
             self.couple_widget = CoupleWidget()
             self.couple_widget.show()
 
@@ -122,12 +121,11 @@ class FormAddWidget(QWidget):
         self.button_add_amorce = QPushButton("Ajouter")
         self.button_add_couple = QPushButton("Ajouter")
         self.button_cancel = QPushButton("Annuler")
-        self.lb_id = QLineEdit()
         self.lb_nom = QLineEdit()
-        self.lb_orientation = QLineEdit()
+        self.l_orientation = QComboBox()
+        self.l_orientation.addItem("forward")
+        self.l_orientation.addItem("reverse")
         self.lb_sequence = QLineEdit()
-        self.lb_taille_sequence = QLineEdit()
-        self.lb_pourcentage_gc = QLineEdit()
         self.lb_temperature_hybridation = QLineEdit()
         self.lb_id_couple = QLineEdit()
         self.lb_nom_couple = QLineEdit()
@@ -139,12 +137,9 @@ class FormAddWidget(QWidget):
 
     def layout_amorce(self):
         self.layout = QFormLayout()
-        self.layout.addRow("Id amorce", self.lb_id)
         self.layout.addRow("Nom amorce", self.lb_nom)
-        self.layout.addRow("Orientation", self.lb_orientation)
+        self.layout.addRow("Orientation", self.l_orientation)
         self.layout.addRow("Sequence", self.lb_sequence)
-        self.layout.addRow("Taille sequence", self.lb_taille_sequence)
-        self.layout.addRow("Pourcentage GC", self.lb_pourcentage_gc)
         self.layout.addRow("Temperature hybridation", self.lb_temperature_hybridation)
         self.layout.addRow("", self.button_add_amorce)
         self.layout.addRow("", self.button_cancel)
@@ -164,11 +159,16 @@ class FormAddWidget(QWidget):
         self.setLayout(self.layout)
 
     def get_amorce(self):
-        return self.lb_id.text(), self.lb_nom.text(), self.lb_orientation.text(), self.lb_sequence.text(), self.lb_taille_sequence.text(), self.lb_pourcentage_gc.text(), self.lb_temperature_hybridation.text()
-
+        return None, self.lb_nom.text(), self.l_orientation.currentText(), self.lb_sequence.text(), str(len(self.lb_sequence.text())), self.calculate_gc(self.lb_sequence.text()), self.lb_temperature_hybridation.text()
     def get_couple(self):
         return self.lb_id_couple.text(), self.lb_nom_couple.text(), self.lb_id_amorce_1.text(), self.lb_id_amorce_2.text(), self.lb_taille_amplicon.text(), self.lb_programme_pcr.text(), self.lb_regions.text()
 
+    def calculate_gc(self,sequence):
+        count_gc = 0
+        for nucleotide in sequence:
+            if nucleotide == "G" or nucleotide == "C":
+                count_gc += 1
+        return count_gc/len(sequence)*100
     def connect(self):
         self.button_add_amorce.clicked.connect(self.addAmorce)
         self.button_add_couple.clicked.connect(self.addCouple)
@@ -185,6 +185,7 @@ class FormAddWidget(QWidget):
         primer.setPourcentage_gc(amorce_info[5])
         primer.setTemperature_hybridation(amorce_info[6])
         primer.create_amorce()
+        self.close()
 
     def addCouple(self):
         couple_info = self.get_couple()
@@ -197,6 +198,7 @@ class FormAddWidget(QWidget):
         primers_couple.setProgramme_pcr(couple_info[5])
         primers_couple.setRegions(couple_info[6])
         primers_couple.create_couple()
+        self.close()
 
     def cancel(self):
         self.close()
@@ -213,6 +215,7 @@ class FormUpdateWidget(QWidget):
         self.button_update_couple = QPushButton("Modifier")
         self.button_cancel = QPushButton("Annuler")
         self.lb_id = QLineEdit()
+        self.lb_id.setReadOnly(True)
         self.lb_nom = QLineEdit()
         self.lb_orientation = QLineEdit()
         self.lb_sequence = QLineEdit()
@@ -243,6 +246,7 @@ class FormUpdateWidget(QWidget):
     def layout_couple(self):
         self.layout = QFormLayout()
         self.layout.addRow("Id couple", self.lb_id_couple)
+        self.layout.addRow("Id couple", self.lb_id_couple)
         self.layout.addRow("Nom couple", self.lb_nom_couple)
         self.layout.addRow("Id amorce 1", self.lb_id_amorce_1)
         self.layout.addRow("Id amorce 2", self.lb_id_amorce_2)
@@ -263,7 +267,6 @@ class FormUpdateWidget(QWidget):
         self.lb_temperature_hybridation.setText(str(amorce.getTemperature_hybridation()))
 
     def setFormCouple(self, couple):
-        self.lb_id_couple.setText(str(couple.getId_couple()))
         self.lb_nom_couple.setText(couple.getNom_couple())
         self.lb_id_amorce_1.setText(str(couple.getId_amorce_1()))
         self.lb_id_amorce_2.setText(str(couple.getId_amorce_2()))
@@ -277,6 +280,13 @@ class FormUpdateWidget(QWidget):
     def get_couple(self):
         return self.lb_id_couple.text(), self.lb_nom_couple.text(), self.lb_id_amorce_1.text(), self.lb_id_amorce_2.text(), self.lb_taille_amplicon.text(), self.lb_programme_pcr.text(), self.lb_regions.text()
 
+    def calculate_gc(self,sequence):
+        count_gc = 0
+        for nucleotide in sequence:
+            if nucleotide == "G" or nucleotide == "C":
+                count_gc += 1
+        return count_gc/len(sequence)*100
+    
     def updateAmorce(self):
         amorce_info = self.get_amorce()
         primer = Amorces()
@@ -284,8 +294,8 @@ class FormUpdateWidget(QWidget):
         primer.setNom_amorce(amorce_info[1])
         primer.setOrientation(amorce_info[2])
         primer.setSequence(amorce_info[3])
-        primer.setTaille_sequence(amorce_info[4])
-        primer.setPourcentage_gc(amorce_info[5])
+        primer.setTaille_sequence(len(amorce_info[3]))
+        primer.setPourcentage_gc(self.calculate_gc(amorce_info[3]))
         primer.setTemperature_hybridation(amorce_info[6])
         primer.update_amorce()
         self.close()
