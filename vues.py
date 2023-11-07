@@ -77,12 +77,14 @@ class TableAmorces(QTableWidget):
             self.setItem(i, 4, QTableWidgetItem(str(amorce.getTaille_sequence())))
             self.setItem(i, 5, QTableWidgetItem(str(amorce.getPourcentage_gc())))
             self.setItem(i, 6, QTableWidgetItem(str(amorce.getTemperature_hybridation())))
+        self.resizeColumnsToContents()
+        self.resizeRowsToContents()
 
 
 class TableCouple(QTableWidget):
     def __init__(self):
         super().__init__()
-        self.setColumnCount(6)
+        self.setColumnCount(7)
         self.setHorizontalHeaderLabels(
             ["Id couple", "Nom amorce", "Id amorce 1", "Id amorce 2", "Taille amplicon", "Programme PCR", "Regions"])
         self.setColumnWidth(0, 100)
@@ -108,7 +110,10 @@ class TableCouple(QTableWidget):
             self.setItem(i, 3, QTableWidgetItem(str(couple.getId_amorce_2())))
             self.setItem(i, 4, QTableWidgetItem(str(couple.getTaille_amplicon())))
             self.setItem(i, 5, QTableWidgetItem(str(couple.getProgramme_pcr())))
+            print(couple.getRegions())
             self.setItem(i, 6, QTableWidgetItem(str(couple.getRegions())))
+        self.resizeColumnsToContents()
+        self.resizeRowsToContents()
 
 
 class FormAddWidget(QWidget):
@@ -229,6 +234,9 @@ class FormUpdateWidget(QWidget):
         self.lb_taille_amplicon = QLineEdit()
         self.lb_programme_pcr = QLineEdit()
         self.lb_regions = QLineEdit()
+        self.lb_id_couple.setReadOnly(True)
+        self.btn_id_amorce_1 = QPushButton("Forward")
+        self.btn_id_amorce_2 = QPushButton("Reverse")
 
     def layout_amorce(self):
         self.layout = QFormLayout()
@@ -246,7 +254,6 @@ class FormUpdateWidget(QWidget):
     def layout_couple(self):
         self.layout = QFormLayout()
         self.layout.addRow("Id couple", self.lb_id_couple)
-        self.layout.addRow("Id couple", self.lb_id_couple)
         self.layout.addRow("Nom couple", self.lb_nom_couple)
         self.layout.addRow("Id amorce 1", self.lb_id_amorce_1)
         self.layout.addRow("Id amorce 2", self.lb_id_amorce_2)
@@ -255,6 +262,8 @@ class FormUpdateWidget(QWidget):
         self.layout.addRow("Regions", self.lb_regions)
         self.layout.addRow("", self.button_update_couple)
         self.layout.addRow("", self.button_cancel)
+        self.layout.addRow("", self.btn_id_amorce_1)
+        self.layout.addRow("", self.btn_id_amorce_2)
         self.setLayout(self.layout)
 
     def setFormAmorces(self, amorce):
@@ -267,6 +276,7 @@ class FormUpdateWidget(QWidget):
         self.lb_temperature_hybridation.setText(str(amorce.getTemperature_hybridation()))
 
     def setFormCouple(self, couple):
+        self.lb_id_couple.setText(str(couple.getId_couple()))
         self.lb_nom_couple.setText(couple.getNom_couple())
         self.lb_id_amorce_1.setText(str(couple.getId_amorce_1()))
         self.lb_id_amorce_2.setText(str(couple.getId_amorce_2()))
@@ -320,6 +330,20 @@ class FormUpdateWidget(QWidget):
         self.button_update_amorces.clicked.connect(self.updateAmorce)
         self.button_update_couple.clicked.connect(self.updateCouple)
         self.button_cancel.clicked.connect(self.cancel)
+        self.btn_id_amorce_1.clicked.connect(self.choose_primer_forward)
+        self.btn_id_amorce_2.clicked.connect(self.choose_primer_reverse)
+
+    def choose_primer_forward(self):
+        self.primer_found = PrimerFound("forward")
+        self.primer_found.load_primer_found()
+        self.primer_found.show()
+
+    def choose_primer_reverse(self):
+        self.primer_found = PrimerFound("reverse")
+        self.primer_found.load_primer_found()
+
+        self.primer_found.show()
+
 
 
 class AmorceWidget(QWidget):
@@ -340,12 +364,12 @@ class AmorceWidget(QWidget):
     def layout(self):
         self.widgets()
         self.main_layout = QGridLayout()
-        self.main_layout.addWidget(self.tableAmorce, 0, 0, 1, 4)
+        self.main_layout.addWidget(self.tableAmorce, 0, 0, 1, 5)
         self.main_layout.addWidget(self.buttonAdd, 1, 0)
         self.main_layout.addWidget(self.buttonUpdate, 1, 1)
         self.main_layout.addWidget(self.buttonDelete, 1, 2)
         self.main_layout.addWidget(self.buttonCancel, 1, 3)
-        self.main_layout.addWidget(self.buttonActualiser, 2, 0)
+        self.main_layout.addWidget(self.buttonActualiser, 1, 4)
         self.setLayout(self.main_layout)
 
     def connect(self):
@@ -375,7 +399,10 @@ class AmorceWidget(QWidget):
         self.formUpdate.show()
 
     def deleteAmorce(self):
-        pass
+        amorce_delete = Amorces()
+        amorce_delete.setId_amorce(self.tableAmorce.item(self.tableAmorce.currentRow(), 0).text())
+        amorce_delete.delete_amorce()
+        self.tableAmorce.load_amorces()
 
     def cancel(self):
         self.close()
@@ -394,15 +421,17 @@ class CoupleWidget(QWidget):
         self.buttonUpdate = QPushButton("Modifier")
         self.buttonDelete = QPushButton("Supprimer")
         self.buttonCancel = QPushButton("Annuler")
+        self.buttonActualiser = QPushButton("Actualiser")
 
     def layout(self):
         self.widgets()
         self.main_layout = QGridLayout()
-        self.main_layout.addWidget(self.tableCouple, 0, 0, 1, 4)
+        self.main_layout.addWidget(self.tableCouple, 0, 0, 1, 5)
         self.main_layout.addWidget(self.buttonAdd, 1, 0)
         self.main_layout.addWidget(self.buttonUpdate, 1, 1)
         self.main_layout.addWidget(self.buttonDelete, 1, 2)
         self.main_layout.addWidget(self.buttonCancel, 1, 3)
+        self.main_layout.addWidget(self.buttonActualiser, 1, 4)
         self.setLayout(self.main_layout)
 
     def connect(self):
@@ -410,6 +439,8 @@ class CoupleWidget(QWidget):
         self.buttonUpdate.clicked.connect(self.updateCouple)
         self.buttonDelete.clicked.connect(self.deleteCouple)
         self.buttonCancel.clicked.connect(self.cancel)
+        self.buttonActualiser.clicked.connect(self.tableCouple.load_couple)
+
 
     def addCouple(self):
         self.formAdd = FormAddWidget()
@@ -419,10 +450,94 @@ class CoupleWidget(QWidget):
     def updateCouple(self):
         self.formUpdate = FormUpdateWidget()
         self.formUpdate.layout_couple()
+        self.formUpdate.btn_id_amorce_1.clicked.connect(self.formUpdate.choose_primer_forward)
+        self.formUpdate.btn_id_amorce_2.clicked.connect(self.formUpdate.choose_primer_reverse)
+        couple_modif = Couple()
+        couple_modif.setId_couple(self.tableCouple.item(self.tableCouple.currentRow(), 0).text())
+        couple_modif.setNom_couple(self.tableCouple.item(self.tableCouple.currentRow(), 1).text())
+        couple_modif.setId_amorce_1(int(self.tableCouple.item(self.tableCouple.currentRow(), 2).text()))
+        couple_modif.setId_amorce_2(int(self.tableCouple.item(self.tableCouple.currentRow(), 3).text()))
+        couple_modif.setTaille_amplicon(self.tableCouple.item(self.tableCouple.currentRow(), 4).text())
+        couple_modif.setProgramme_pcr(self.tableCouple.item(self.tableCouple.currentRow(), 5).text())
+        couple_modif.setRegions(self.tableCouple.item(self.tableCouple.currentRow(), 6).text())
+        self.formUpdate.setFormCouple(couple_modif)
         self.formUpdate.show()
 
     def deleteCouple(self):
-        pass
+        couple_delete = Couple()
+        couple_delete.setId_couple(self.tableCouple.item(self.tableCouple.currentRow(), 0).text())
+        couple_delete.delete_couple()
+        self.tableCouple.load_couple()
+
+    def cancel(self):
+        self.close()
+
+    def choose_primer_forward(self):
+        self.formUpdate.lb_id_amorce_1.setText(self.formUpdate.primer_found.primer)
+
+    def choose_primer_reverse(self):
+        self.formUpdate.lb_id_amorce_2.setText(self.formUpdate.primer_found.primer)
+
+class PrimerFound(QWidget) :
+    primer = ""
+    def __init__(self,sens):
+        super().__init__()
+        self.sens = sens
+        self.layout()
+        self.connect()
+
+    def widgets(self):
+        self.tablePrimerFound = QTableWidget()
+        self.tablePrimerFound.setColumnCount(3)
+        self.tablePrimerFound.setHorizontalHeaderLabels(["Id primer", "Primer_name", "Sequence"])
+        self.tablePrimerFound.setColumnWidth(0, 100)
+        self.tablePrimerFound.setColumnWidth(1, 100)
+        self.tablePrimerFound.setColumnWidth(2, 100)
+        self.tablePrimerFound.setRowCount(0)
+        self.tablePrimerFound.setAlternatingRowColors(True)
+        self.tablePrimerFound.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.tablePrimerFound.setSelectionBehavior(QTableWidget.SelectRows)
+        self.buttonCancel = QPushButton("Quitter")
+        self.buttonActualiser = QPushButton("Actualiser")
+        self.buttonValider = QPushButton("Choisir")
+
+    def load_primer_found(self):
+        all_primers = Amorces()
+        liste_primers = all_primers.get_all_amorces()
+        if self.sens == "forward" :
+            for i, primer in enumerate(liste_primers):
+                if primer.getOrientation() == "forward" :
+                    self.tablePrimerFound.setItem(i, 0, QTableWidgetItem(str(primer.getId_amorce())))
+                    self.tablePrimerFound.setItem(i, 1, QTableWidgetItem(str(primer.getNom_amorce())))
+                    self.tablePrimerFound.setItem(i, 2, QTableWidgetItem(str(primer.getSequence())))
+        elif self.sens == "reverse" :
+            for i, primer in enumerate(liste_primers):
+                if primer.getOrientation() == "reverse" :
+                    self.tablePrimerFound.setItem(i, 0, QTableWidgetItem(str(primer.getId_amorce())))
+                    self.tablePrimerFound.setItem(i, 1, QTableWidgetItem(str(primer.getNom_amorce())))
+                    self.tablePrimerFound.setItem(i, 2, QTableWidgetItem(str(primer.getSequence())))
+        self.tablePrimerFound.resizeColumnsToContents()
+        self.tablePrimerFound.resizeRowsToContents()
+
+
+
+    def return_primer_found(self):
+        #Emettre un signal avec le primer choisi
+        self.primer = self.tablePrimerFound.item(self.tablePrimerFound.currentRow(), 1).text()
+        self.close()
+
+    def layout(self):
+        self.widgets()
+        self.main_layout = QGridLayout()
+        self.main_layout.addWidget(self.tablePrimerFound, 0, 0, 1, 5)
+        self.main_layout.addWidget(self.buttonCancel, 1, 0)
+        self.main_layout.addWidget(self.buttonActualiser, 1, 1)
+        self.main_layout.addWidget(self.buttonValider, 1, 2)
+        self.setLayout(self.main_layout)
+    def connect(self):
+        self.buttonCancel.clicked.connect(self.cancel)
+        self.buttonActualiser.clicked.connect(self.load_primer_found)
+        self.buttonValider.clicked.connect(self.return_primer_found)
 
     def cancel(self):
         self.close()

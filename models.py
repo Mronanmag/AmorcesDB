@@ -193,17 +193,16 @@ class Couple():
     def create_couple(self):
         conn = sqlite3.connect('amorces_ngs.db')
         cursor = conn.cursor()
-        request = f"INSERT INTO {self.nameTableCouple} (nom_couple, id_amorce_1, id_amorce_2, taille_amplicon, programme_pcr, regions) VALUES (?, ?, ?, ?, ?, ?)"
+        request = f"INSERT INTO {self.nameTableCouple} (nom_couple, amorce_couple_1, amorce_couple_2, Taille_fragment, programme_pcr, region) VALUES (?, ?, ?, ?, ?, ?)"
         cursor.execute(request, (
-            self.nom_couple, self.id_amorce_1, self.id_amorce_2, self.taille_amplicon, self.programme_pcr,
-            self.regions))
+            self.nom_couple, self.id_amorce_1, self.id_amorce_2, self.taille_amplicon, self.programme_pcr,self.regions))
         conn.commit()
         conn.close()
 
     def update_couple(self):
         conn = sqlite3.connect('amorces_ngs.db')
         cursor = conn.cursor()
-        request = f"UPDATE {self.nameTableCouple} SET nom_couple = ?, id_amorce_1 = ?, id_amorce_2 = ?, taille_amplicon = ?, programme_pcr = ?, regions = ? WHERE id_couple = ?"
+        request = f"UPDATE {self.nameTableCouple} SET nom_couple = ?, amorce_couple_1 = ?, amorce_couple_2 = ?, Taille_fragment = ?, programme_pcr = ?, region = ? WHERE id_couple = ?"
         cursor.execute(request, (
             self.nom_couple, self.id_amorce_1, self.id_amorce_2, self.taille_amplicon, self.programme_pcr,
             self.regions, self.id_couple))
