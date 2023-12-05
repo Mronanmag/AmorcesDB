@@ -1,0 +1,19 @@
+<h2>Tableau des couples</h2>
+<table>
+    <tr>
+        <th>Nom</th>
+        <th>Amorce_forward</th>
+        <th>Amorce_reverse</th>
+        <th>taille_fragment</th>
+        <th>region</th>
+    </tr>
+    {% for couple in couples %}
+    <tr>
+        <td>{{ couple.nom }}</td>
+        <td>{{ couple.amorce_forward }}</td>
+        <td>{{ couple.amorce_reverse }}</td>
+        <td>{{ couple.taille_fragment }}</td>
+        <td>{{ couple.region }}</td>
+    </tr>
+    {% endfor %}
+</table>

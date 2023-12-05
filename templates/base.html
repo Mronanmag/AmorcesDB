@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+{% load static %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-ez3Ad8e4tG5L+ZcHVAEl2KAxwBCt5tky+/pICk5dL3XAsYq33HttH1mCUt59W/1tm" crossorigin="anonymous">
+    <title>Amorces explorer</title>
+</head>
+<body>
+    {% include 'sidebar.html' %}
+    <div class="content" id="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

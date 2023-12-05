@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajouter un premier{% endblock %}
+
+{% block content %}
+<h1>Ajouter un Primer</h1>
+<div class="form-group">
+    <form method="POST", class ="form-primer">
+        {% csrf_token %}
+        {{ form_primer.as_p }}
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+        <button type="reset" class="btn btn-primary">Nettoyer</button>
+    </form>
+</div>
+{% endblock %}
