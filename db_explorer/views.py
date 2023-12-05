@@ -3,9 +3,11 @@ from itertools import product
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views import View
+from django_tables2 import tables, SingleTableView, RequestConfig
 
 from .models import Amorce, Couple
 from .forms import AmorceForm, CoupleForm
+from .tables import AmorceTable
 
 
 class BaseView(View):
@@ -26,11 +28,15 @@ class AccueilView(BaseView):  # Inherit from BaseView
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        table = AmorceTable(Amorce.objects.all())
+        RequestConfig(self.request, paginate={'per_page': 10}).configure(table)
         context.update({
             'amorces': Amorce.objects.all(),
             'couples': Couple.objects.all(),
+            'table' : table,
         })
         return context
+
 
     def get(self, request):
         return render(request, self.template_name, self.get_context_data())
@@ -149,3 +155,4 @@ class SidebarView():
             {'href': 'admin:index', 'label': 'Admin', 'icon': 'fas fa-cogs'}
         ]
         return {'items': items}
+

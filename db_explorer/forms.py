@@ -12,6 +12,14 @@ class AmorceForm(forms.ModelForm):
         sequence = cleaned_data.get("sequence")
         if sequence == "":
             raise forms.ValidationError("La séquence ne peut pas être vide")
+        #Vérifie que la séquence ne contient que des nucléotides
+        autorised_nucleotides = ['A', 'T', 'C', 'G', 'N','R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V']
+        sequence = cleaned_data.get("sequence").upper()
+        print(sequence)
+        for nucleotide in sequence :
+            print(nucleotide)
+            if nucleotide not in autorised_nucleotides:
+                raise forms.ValidationError("La séquence contient des caractères non autorisés")
         return cleaned_data
 
 class CoupleForm(forms.ModelForm):
@@ -21,7 +29,6 @@ class CoupleForm(forms.ModelForm):
 
     def clean(self):
         #Vérifie que le couple d'amorces n'existe pas déja (dans les deux sens)
-        autorised_nucleotides = ['A', 'T', 'C', 'G', 'N','R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V']
         cleaned_data = super().clean()
         amorce_forward = cleaned_data.get("amorce_forward")
         amorce_reverse = cleaned_data.get("amorce_reverse")
@@ -35,9 +42,5 @@ class CoupleForm(forms.ModelForm):
         nom = cleaned_data.get("nom")
         if Couple.objects.filter(nom=nom).exists():
             raise forms.ValidationError("Ce nom de couple existe déjà")
-        sequence = cleaned_data.get("sequence").upper()
-        print(sequence)
-        for nucleotide in sequence :
-            if nucleotide not in autorised_nucleotides:
-                raise forms.ValidationError("La séquence contient des caractères non autorisés")
+
         return cleaned_data

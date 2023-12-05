@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'db_explorer.apps.DbExplorerConfig',
+    'django_tables2',
 ]
 
 MIDDLEWARE = [

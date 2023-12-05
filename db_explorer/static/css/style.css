@@ -1,3 +1,5 @@
+/* Vos styles existants pour la structure globale */
+
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -45,19 +47,46 @@ h1, h2 {
     color: #333;
 }
 
-table {
+/* Styles pour la table */
+
+.table {
     width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
     border-collapse: collapse;
-    margin-top: 20px;
+    font-size: 14px;
 }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+.table td,
+.table th {
+    padding: 0.5rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
 }
 
-th {
-    background-color: #333;
-    color: #fff;
+.table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr:nth-child(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.table-striped tbody tr:nth-child(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table a {
+    color: #333;
+    text-decoration: none;
+}
+
+.table a:hover {
+    color: #000000;
 }
