@@ -7,7 +7,7 @@ from django_tables2 import tables, SingleTableView, RequestConfig
 
 from .models import Amorce, Couple
 from .forms import AmorceForm, CoupleForm
-from .tables import AmorceTable
+from .tables import AmorceTable, CoupleTable
 
 
 class BaseView(View):
@@ -30,10 +30,13 @@ class AccueilView(BaseView):  # Inherit from BaseView
         context = super().get_context_data(**kwargs)
         table = AmorceTable(Amorce.objects.all())
         RequestConfig(self.request, paginate={'per_page': 10}).configure(table)
+        table_couple = CoupleTable(Couple.objects.all())
+        RequestConfig(self.request, paginate={'per_page': 10}).configure(table_couple)
         context.update({
             'amorces': Amorce.objects.all(),
             'couples': Couple.objects.all(),
             'table' : table,
+            'table_couple' : table_couple,
         })
         return context
 
