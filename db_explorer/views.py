@@ -90,10 +90,30 @@ class AmorcesView(BaseView):  # Inherit from BaseView
         return round(gc_content_value, 2)
 
     def metling_temperatre(self, seq):
+        nb_a = 0
+        nb_t = 0
+        nb_g = 0
+        nb_c = 0
         if seq.count('A') + seq.count('T') + seq.count('G') + seq.count('C') != len(seq):
             liste_amorces = self.remplacer_bases_degeneres(seq)
-            print(liste_amorces)
-        return 15
+            for amorce in liste_amorces:
+                nb_a += amorce.count('A')
+                nb_t += amorce.count('T')
+                nb_g += amorce.count('G')
+                nb_c += amorce.count('C')
+            moy_a = nb_a / len(liste_amorces)
+            moy_t = nb_t / len(liste_amorces)
+            moy_g = nb_g / len(liste_amorces)
+            moy_c = nb_c / len(liste_amorces)
+        else :
+            moy_a = seq.count('A')
+            moy_t = seq.count('T')
+            moy_g = seq.count('G')
+            moy_c = seq.count('C')
+        if len(seq) <= 14:
+            return round((2 * (moy_a + moy_t) + 4 * (moy_g + moy_c)),2)
+        else:
+            return round((64.9 + 41 * (moy_g + moy_c - 16.4) / (moy_a + moy_t + moy_g + moy_c)),2)
 
     def remplacer_bases_degeneres(self, primer):
         bases_degeneres = {

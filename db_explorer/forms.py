@@ -4,7 +4,7 @@ from .models import Amorce, Couple
 class AmorceForm(forms.ModelForm):
     class Meta:
         model = Amorce
-        fields = 'nom', 'orientation', 'sequence', 'temperature_melting'
+        fields = 'nom', 'orientation', 'sequence'
 
     def clean(self):
         #Vérifie que les séquences ne sont pas vides
