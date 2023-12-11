@@ -24,3 +24,37 @@ class Couple(models.Model):
 
     def __str__(self):
         return self.nom
+
+class Echantillon(models.Model) :
+    code_interne = models.CharField(max_length=100)
+    code_client = models.CharField(max_length=100)
+    designation = models.CharField(max_length=100)
+    date_reception = models.DateField()
+    date_rendu = models.DateField()
+    date_suppression = models.DateField()
+    type_barcode = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.code_interne + '_' + self.code_client
+
+
+class Librairie(models.Model) :
+    nom_librairie = models.CharField(max_length=100)
+    date = models.DateField(auto_now_add=True)
+    finished = models.BooleanField()
+
+
+class Couple_Echantillon(models.Model):
+    id_couple = models.ForeignKey(Couple, on_delete=models.CASCADE)
+    id_echantillon = models.ForeignKey(Echantillon, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.id_couple + '_' + self.id_echantillon
+
+
+class Librairie_Echantillon(models.Model):
+    id_librairie = models.ForeignKey(Librairie, on_delete=models.CASCADE)
+    id_echantillon = models.ForeignKey(Echantillon, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.id_librairie + '_' + self.id_echantillon

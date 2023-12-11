@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Reverse complement une séquence{% endblock %}
+
+{% block content %}
+<h1>Primer</h1>
+<div class="form-group">
+    <form method="POST" class="form_rev_comp">
+        {% csrf_token %}
+        {{ form_rev_comp.as_p }}
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+    </form>
+    {% if rev_comp %}
+        <div class="alert alert-success" role="alert">
+            <p>La séquence reverse complement est : {{ rev_comp }}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

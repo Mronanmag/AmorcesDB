@@ -44,3 +44,22 @@ class CoupleForm(forms.ModelForm):
             raise forms.ValidationError("Ce nom de couple existe déjà")
 
         return cleaned_data
+
+class RevCompForm(forms.Form):
+    sequence = forms.CharField(label='Séquence', max_length=1000)
+
+    def clean(self):
+        #Vérifie que les séquences ne sont pas vides
+        cleaned_data = super().clean()
+        sequence = cleaned_data.get("sequence")
+        if sequence == "":
+            raise forms.ValidationError("La séquence ne peut pas être vide")
+        #Vérifie que la séquence ne contient que des nucléotides
+        autorised_nucleotides = ['A', 'T', 'C', 'G', 'N','R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V']
+        sequence = cleaned_data.get("sequence").upper()
+        print(sequence)
+        for nucleotide in sequence :
+            print(nucleotide)
+            if nucleotide not in autorised_nucleotides:
+                raise forms.ValidationError("La séquence contient des caractères non autorisés")
+        return cleaned_data

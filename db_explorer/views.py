@@ -6,7 +6,7 @@ from django.views import View
 from django_tables2 import tables, SingleTableView, RequestConfig
 
 from .models import Amorce, Couple
-from .forms import AmorceForm, CoupleForm
+from .forms import AmorceForm, CoupleForm, RevCompForm
 from .tables import AmorceTable, CoupleTable
 
 
@@ -167,6 +167,36 @@ def get(self, request):
     context = self.get_context_data()
     return render(request, self.template_name, context)
 
+class RevCompView(BaseView):
+    template_name = 'forms_html/form_rev_comp.html'
+
+    def get_context_data(self, **kwargs):
+        form_rev_comp = RevCompForm()
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'form_rev_comp': form_rev_comp,
+        })
+        return context
+
+    def post(self, request):
+        form = RevCompForm(request.POST)
+        if form.is_valid():
+            sequence = form.cleaned_data['sequence']
+            rev_comp = self.reverse_complement(sequence)
+            context = self.get_context_data()
+            context['rev_comp'] = rev_comp
+            return render(request, self.template_name, context)
+        else:
+            raisons = form.errors
+            success_message = f"La séquence n'a pas été reverse complémenté pour les raisons suivantes : {raisons}"
+            context = self.get_context_data()
+            context['form_rev_comp'] = form
+            return render(request, self.template_name, context)
+
+    def reverse_complement(self, seq):
+        complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N', 'R': 'Y', 'Y': 'R', 'S': 'S', 'W': 'W', 'K': 'M', 'M': 'K', 'B': 'V', 'D': 'H', 'H': 'D', 'V': 'B'}
+        return "".join(complement.get(base, base) for base in reversed(seq))
+
 
 class SidebarView():
     @staticmethod
@@ -175,7 +205,8 @@ class SidebarView():
             {'href': 'index', 'label': 'Accueil', 'icon': 'fas fa-home'},
             {'href': 'amorces', 'label': 'Amorces', 'icon': 'fas fa-fish'},
             {'href': 'couples', 'label': 'Couples', 'icon': 'fas fa-users'},
-            {'href': 'admin:index', 'label': 'Admin', 'icon': 'fas fa-cogs'}
+            {'href': 'admin:index', 'label': 'Admin', 'icon': 'fas fa-cogs'},
+            {'href': 'Reverse_Complement', 'label': 'Reverse complement', 'icon': 'fas fa-cogs'}
         ]
         return {'items': items}
 
